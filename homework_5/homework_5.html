@@ -10,22 +10,16 @@
 
 <script>
 function generateCoordinates() {
-    // Load your GeoJSON dataset (replace 'data.geojson' with your file path)
     fetch('./homework_5/data/prism2.geojson')
         .then(response => response.json())
         .then(data => {
-            // Declare an array to hold the coordinates
             let myCoordinates = [];
-
-            // Iterate through each feature in the GeoJSON dataset
             data.features.forEach(feature => {
-                // Extract the coordinates from each feature
                 let coordinates = feature.geometry.coordinates;
 
-                // Assuming it's a point geometry, you can get X,Y coordinates
-                let pointCoordinates = [coordinates[1], coordinates[0]];
 
-                // Push the extracted coordinates into the array
+                let pointCoordinates = [coordinates[0], coordinates[1]];
+
                 myCoordinates.push(pointCoordinates);
             });
 
