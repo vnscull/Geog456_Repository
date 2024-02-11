@@ -10,24 +10,14 @@
 
 <script>
 function generateCoordinates() {
-    fetch('./homework_5/data/prism2.geojson')
-        .then(response => response.json())
-        .then(data => {
-            let myCoordinates = [];
-            data.features.forEach(feature => {
-                let coordinates = feature.geometry.coordinates;
+    var prism = (./data/prism.js)
+   var myCoordinates = prism.features.map(e => e)
+var lat = prism.features[0].geometry.coordinates[1];
+var lon = prism.features[0].geometry.coordinates[0];
+prism.features.forEach(e =>
+console.log(e.geometry.coordinates.slice().reverse(0)))
+;}
 
-
-                let pointCoordinates = [coordinates[0], coordinates[1]];
-
-                myCoordinates.push(pointCoordinates);
-            });
-
-            // Log the array of coordinates to the console
-            console.log(myCoordinates);
-        })
-        .catch(error => console.error('Error loading GeoJSON:', error));
-}
 </script>
 </body>
 </html>
