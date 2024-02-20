@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GeoJSON Coordinates</title>
 </head>
+<script src= "./data/prism.js"></script>
 <body>
 <button onclick="generateCoordinates()">Generate Coordinates</button>
 
 <script>
 function generateCoordinates() {
-    var prism = (./data/prism.js)
    var myCoordinates = prism.features.map(e => e)
 var lat = prism.features[0].geometry.coordinates[1];
 var lon = prism.features[0].geometry.coordinates[0];
