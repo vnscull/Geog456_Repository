@@ -10,13 +10,19 @@
 <button onclick="generateCoordinates()">Generate Coordinates</button>
 
 <script>
+
 function generateCoordinates() {
-   var myCoordinates = prism.features.map(e => e)
-var lat = prism.features[0].geometry.coordinates[1];
-var lon = prism.features[0].geometry.coordinates[0];
-prism.features.forEach(e =>
-console.log(e.geometry.coordinates.slice().reverse(0)))
-;}
+    var myCoordinates = prism.features.map(e => e.geometry.coordinates);
+    console.log(myCoordinates);
+//    function generateCoordinates() {
+// var myCoordinates = [] 
+
+// prism.features.forEach( e => {
+//        myCoordinates.push(e.geometry.coordinates);
+// });
+// console.log(myCoordinates);
+}
+
 
 </script>
 </body>
