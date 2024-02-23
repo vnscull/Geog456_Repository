@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoJSON Coordinates</title>
+<title>GeoJSON Names</title>
 </head>
 <script src= "./data/prism.js"></script>
 <body>
-<button onclick="generateCoordinates()">Generate Coordinates</button>
+<button onclick="generateNames()">Generate Names</button>
 
 <script>
+function generateNames() {
+var anArrayOfNames = []
 
-function generateCoordinates() {
-    var myCoordinates = prism.features.map(e => e.geometry.coordinates);
-    console.log(myCoordinates);
+for (var i = 0; i < prism.features.length; i++ ){
+anArrayOfNames.push(prism.features[i].properties.Name)
 }
+console.log(anArrayOfNames)}
 
 
 </script>
