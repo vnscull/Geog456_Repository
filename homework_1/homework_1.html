@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clickable Div</title>
+  <style>
+    #customDiv {
+      background-color: pink; color: yellow;
+      padding: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="customDiv" onclick="handleDivClick()">
+  <h1 onclick="handleH1Click()">Click me!</h1>
+</div>
+<script>
+  function handleH1Click() {
+    alert('Hello there');
+  }
+  function handleDivClick() {
+    console.log('The div was clicked');
+  }
+</script>
+</body>
+</html>
