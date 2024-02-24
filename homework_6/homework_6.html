@@ -1,14 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loop</title>
+  <script src= "./prism.js"></script>
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #097e4b;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
 </head>
-<script src= "./prism.js"></script>
+
 <body>
 
+<h2>Prism Data</h2>
+
+<table id = "myTable">
+  <tr>
+    <th>Name</th>
+    <th>Station</th>
+    <th>Network</th>
+  </tr>
+
+</table>
 <script>
+
+var x = document.getElementById('myTable')
+
 
 function generateCoordinates() {
     var myCoordinates = prism.features.map(e => e.geometry.coordinates);
@@ -16,18 +45,29 @@ function generateCoordinates() {
 }
 
 var anArrayOfStations = []
+
+
 for (var i = 0; i < prism.features.length; i++ ){
+  var myNewRow = document.createElement('tr');
+  var myNewCell1 = document.createElement('td');
+  var myNewCell2 =document.createElement('td');
+  var myNewCell3 =document.createElement('td');
+
+  myNewRow.append(myNewCell1)
+  myNewRow.append(myNewCell2)
+  myNewRow.append(myNewCell3)
+
+  myNewCell1.innerText = prism.features[i].properties.Name
+  myNewCell2.innerText = prism.features[i].properties.Station
+  myNewCell3.innerText = prism.features[i].properties.Network
+  x.append(myNewRow)
+
 anArrayOfStations.push(prism.features[i].properties.Name)
 }
 console.log(anArrayOfStations)
 
 var prismLoop = prism.features.map(e => ({'Station':e.properties.Station, 'Name':e.properties.Name, 'Network':e.properties.Network}))
 
-document.querySelector('table')
-var myTable = document.querySelector('table')
-var myH = document.querySelector('h2')
-myTable
-myH
 </script>
 </body>
 </html>
