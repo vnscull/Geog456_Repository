@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tornado Outbreaks East of the Mississippi</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <br/>
+    <h3 id="Year">Year</h3>
+    <input type="range" name="Year" id="yearSlider" min="1973" max="2023" oninput="moveSlider(this.value)">
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <script src="./data/tornadoes.js"></script>
+    <script>
+        var myCenter = [18.0, -21.0];
+        var map = L.map('map').setView(myCenter, 3);
+
+        var OSM = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        var geojsonMarkerOptions = {
+            radius: 8,
+            fillColor: "#0000FF",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 0.8
+        };
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        var baseMaps = {
+            "OpenStreetMap": OSM,
+            "Esri": Esri_WorldImagery
+        };
+
+        var overlayMaps = {};
+
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+        var yearSlider = document.getElementById('yearSlider');
+        var uniqueYears = [];
+
+        tornadoes.features.forEach(function(feature) {
+            var year = feature.properties.yr;
+            if (!uniqueYears.includes(year)) {
+                uniqueYears.push(year);
+            }
+        });
+        yearSlider.min = Math.min(...uniqueYears);
+        yearSlider.max = Math.max(...uniqueYears);
+
+        var myOutbreak;
+
+        function moveSlider(value) {
+            document.getElementById('Year').innerHTML = 'Year ' + value;
+            updateLayer(value);
+        }
+
+        function updateLayer(year) {
+            if (myOutbreak) {
+                myOutbreak.clearLayers();
+            }
+            var selectedData = tornadoes.features.filter(function(feature) {
+                return feature.properties.yr == year;
+            });
+            myOutbreak = L.geoJSON({
+                type: 'FeatureCollection',
+                features: selectedData
+            }, {
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, geojsonMarkerOptions);
+                },
+                onEachFeature: onEachFeature,
+                style: style // Add the style function here
+            }).addTo(map);
+        }
+
+        function style(tornadoes) {
+            switch (tornadoes.properties.outbreak) {
+                case '1': return {color: 'blue'};
+                case '0': return {color: 'green'};
+                default: return {color: 'red'};
+            }
+        }
+
+        function onEachFeature(tornadoes, layer) {
+            if (tornadoes.properties && tornadoes.properties.popupContent) {
+                layer.bindPopup(tornadoes.properties.popupContent);
+            }
+        }
+    </script>
+</body>
+</html>
