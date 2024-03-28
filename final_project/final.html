@@ -148,15 +148,17 @@
             });
         }
 
-        // Function to handle popup for each feature
-        function onEachFeature(feature, layer) {
-            if (feature.properties) {
-                var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
-                                   "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
-                                   "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM;
-                layer.bindPopup(popupContent);
-            }
-        }
+// Function to handle popup for each feature
+function onEachFeature(feature, layer) {
+    if (feature.properties) {
+        var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
+                           "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
+                           "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM + "<br>" +
+                           "<b>Date:</b> " + feature.properties.date;
+        layer.bindPopup(popupContent);
+    }
+}
+
 
         // Base maps and overlay maps
         var baseMaps = {
