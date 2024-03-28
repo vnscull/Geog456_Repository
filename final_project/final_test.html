@@ -6,11 +6,51 @@
     <title>Tornado Outbreaks East of the Rockies</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        #map { height: 500px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #a8e6cf, #ffffff); /* Gradient from light green to white */
+        }
+        #map {
+            height: 500px;
+            margin-bottom: 20px;
+        }
+        #Year {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        #yearSlider {
+            width: 80%;
+            margin: 0 auto;
+            display: block;
+            background-color: #6495ED;
+            border: none; 
+            outline: none;
+            border-radius: 10px;
+        }
+        #yearSlider::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h3 {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <br/>
+    <h1>Tornado Outbreaks East of the Rockies</h1>
     <h3 id="Year">Year</h3>
     <input type="range" name="Year" id="yearSlider" min="1973" max="2023" value="1973" oninput="moveSlider(this.value)">
     <div id="map"></div>
@@ -34,7 +74,7 @@
         }
 
         // Creating separate GeoJSON layers for blue and pink outbreaks
-        var blueOutbreaks = L.geoJSON(null, {
+        var Outbreaks = L.geoJSON(null, {
             pointToLayer: function (feature, latlng) {
                 var outbreakType = feature.properties.outbreak;
                 if (outbreakType === "1") {
@@ -51,7 +91,7 @@
             onEachFeature: onEachFeature
         });
 
-        var pinkOutbreaks = L.geoJSON(null, {
+        var NonOutbreaks = L.geoJSON(null, {
             pointToLayer: function (feature, latlng) {
                 var outbreakType = feature.properties.outbreak;
                 if (outbreakType !== "1") {
@@ -69,8 +109,8 @@
         });
 
         // Adding blue and pink outbreaks to map
-        blueOutbreaks.addTo(map);
-        pinkOutbreaks.addTo(map);
+        Outbreaks.addTo(map);
+        NonOutbreaks.addTo(map);
 
         // Setting up year slider
         var yearSlider = document.getElementById('yearSlider');
@@ -93,16 +133,16 @@
 
         // Function to update the layer with data for a specific year
         function updateLayer(year) {
-            blueOutbreaks.clearLayers(); // Clear existing layer
-            pinkOutbreaks.clearLayers(); // Clear existing layer
+            Outbreaks.clearLayers(); // Clear existing layer
+            NonOutbreaks.clearLayers(); // Clear existing layer
 
             tornadoes.features.forEach(function(feature) {
                 if (feature.properties.yr == year) {
                     var outbreakType = feature.properties.outbreak;
                     if (outbreakType === "1") {
-                        blueOutbreaks.addData(feature);
+                        Outbreaks.addData(feature);
                     } else {
-                        pinkOutbreaks.addData(feature);
+                        NonOutbreaks.addData(feature);
                     }
                 }
             });
@@ -110,14 +150,13 @@
 
         // Function to handle popup for each feature
         function onEachFeature(feature, layer) {
-    if (feature.properties) {
-        var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
-                           "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
-                           "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM;
-        layer.bindPopup(popupContent);
-    }
-}
-
+            if (feature.properties) {
+                var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
+                                   "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
+                                   "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM;
+                layer.bindPopup(popupContent);
+            }
+        }
 
         // Base maps and overlay maps
         var baseMaps = {
@@ -126,8 +165,8 @@
         };
 
         var overlayMaps = {
-            "Blue Outbreaks": blueOutbreaks,
-            "Pink Outbreaks": pinkOutbreaks
+            "Non-Outbreak": NonOutbreaks,
+            "Outbreaks": Outbreaks
         };
 
         // Adding layer control
@@ -135,5 +174,3 @@
     </script>
 </body>
 </html>
-
-
