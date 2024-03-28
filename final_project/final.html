@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tornado Outbreaks East of the Rockies</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <br/>
+    <h3 id="Year">Year</h3>
+    <input type="range" name="Year" id="yearSlider" min="1973" max="2023" value="1973" oninput="moveSlider(this.value)">
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="./data/tornadoes.js"></script>
+    <script>
+        var map = L.map('map').setView([37.0902, -95.7129], 4); // Centering on USA
+
+        var OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        });
+
+        // Function to get color based on outbreak type
+        function getColor(outbreakType) {
+            return outbreakType === "1" ? 'blue' : 'pink';
+        }
+
+        // Creating separate GeoJSON layers for blue and pink outbreaks
+        var Outbreaks = L.geoJSON(null, {
+            pointToLayer: function (feature, latlng) {
+                var outbreakType = feature.properties.outbreak;
+                if (outbreakType === "1") {
+                    return L.circleMarker(latlng, {
+                        radius: 8,
+                        fillColor: 'blue',
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+            },
+            onEachFeature: onEachFeature
+        });
+
+        var NonOutbreaks = L.geoJSON(null, {
+            pointToLayer: function (feature, latlng) {
+                var outbreakType = feature.properties.outbreak;
+                if (outbreakType !== "1") {
+                    return L.circleMarker(latlng, {
+                        radius: 8,
+                        fillColor: 'pink',
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+            },
+            onEachFeature: onEachFeature
+        });
+
+        // Adding blue and pink outbreaks to map
+        Outbreaks.addTo(map);
+        NonOutbreaks.addTo(map);
+
+        // Setting up year slider
+        var yearSlider = document.getElementById('yearSlider');
+        var uniqueYears = [];
+
+        tornadoes.features.forEach(function(feature) {
+            var year = feature.properties.yr;
+            if (!uniqueYears.includes(year)) {
+                uniqueYears.push(year);
+            }
+        });
+        yearSlider.min = Math.min(...uniqueYears);
+        yearSlider.max = Math.max(...uniqueYears);
+
+        // Function to update layer based on slider value
+        function moveSlider(value) {
+            document.getElementById('Year').innerHTML = 'Year ' + value;
+            updateLayer(value);
+        }
+
+        // Function to update the layer with data for a specific year
+        function updateLayer(year) {
+            Outbreaks.clearLayers(); // Clear existing layer
+            NonOutbreaks.clearLayers(); // Clear existing layer
+
+            tornadoes.features.forEach(function(feature) {
+                if (feature.properties.yr == year) {
+                    var outbreakType = feature.properties.outbreak;
+                    if (outbreakType === "1") {
+                        Outbreaks.addData(feature);
+                    } else {
+                        NonOutbreaks.addData(feature);
+                    }
+                }
+            });
+        }
+
+        // Function to handle popup for each feature
+        function onEachFeature(feature, layer) {
+    if (feature.properties) {
+        var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
+                           "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
+                           "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM;
+        layer.bindPopup(popupContent);
+    }
+}
+
+        // Base maps and overlay maps
+        var baseMaps = {
+            "OpenStreetMap": OSM,
+            "Esri": Esri_WorldImagery
+        };
+
+        var overlayMaps = {
+            "Non-Outbreak": NonOutbreaks,
+            "Outbreaks": Outbreaks
+        };
+
+        // Adding layer control
+        L.control.layers(baseMaps, overlayMaps).addTo(map);
+    </script>
+</body>
+</html>
+
