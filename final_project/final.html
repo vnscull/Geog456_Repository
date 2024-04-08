@@ -16,12 +16,12 @@
             height: 500px;
             margin-bottom: 20px;
         }
-        #Year {
+        #YearMonth {
             font-size: 18px;
             margin-bottom: 10px;
             text-align: center;
         }
-        #yearSlider {
+        #yearSlider, #monthSlider {
             width: 80%;
             margin: 0 auto;
             display: block;
@@ -29,8 +29,9 @@
             border: none; 
             outline: none;
             border-radius: 10px;
+            margin-bottom: 10px;
         }
-        #yearSlider::-webkit-slider-thumb {
+        #yearSlider::-webkit-slider-thumb, #monthSlider::-webkit-slider-thumb {
             width: 20px;
             height: 20px;
             background-color: #fff;
@@ -51,8 +52,9 @@
 </head>
 <body>
     <h1>Tornado Outbreaks East of the Rockies</h1>
-    <h3 id="Year">Year</h3>
-    <input type="range" name="Year" id="yearSlider" min="1973" max="2023" value="1973" oninput="moveSlider(this.value)">
+    <h3 id="YearMonth">Year and Month</h3>
+    <input type="range" name="Year" id="yearSlider" min="1973" max="2023" value="1973" oninput="moveYearSlider(this.value)">
+    <input type="range" name="Month" id="monthSlider" min="1" max="12" value="1" oninput="moveMonthSlider(this.value)">
     <div id="map"></div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="./data/tornadoes.js"></script>
@@ -67,6 +69,10 @@
         var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
+
+        // Array of month names
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
 
         // Function to get color based on outbreak type
         function getColor(outbreakType) {
@@ -112,32 +118,50 @@
         Outbreaks.addTo(map);
         NonOutbreaks.addTo(map);
 
-        // Setting up year slider
+        // Setting up year and month sliders
         var yearSlider = document.getElementById('yearSlider');
+        var monthSlider = document.getElementById('monthSlider');
         var uniqueYears = [];
+        var uniqueMonths = [];
 
         tornadoes.features.forEach(function(feature) {
-            var year = feature.properties.yr;
+            var year = new Date(feature.properties.date_time).getFullYear();
+            var month = new Date(feature.properties.date_time).getMonth() + 1; // Month starts from 0
             if (!uniqueYears.includes(year)) {
                 uniqueYears.push(year);
+            }
+            if (!uniqueMonths.includes(month)) {
+                uniqueMonths.push(month);
             }
         });
         yearSlider.min = Math.min(...uniqueYears);
         yearSlider.max = Math.max(...uniqueYears);
+        monthSlider.min = Math.min(...uniqueMonths);
+        monthSlider.max = Math.max(...uniqueMonths);
 
-        // Function to update layer based on slider value
-        function moveSlider(value) {
-            document.getElementById('Year').innerHTML = 'Year ' + value;
-            updateLayer(value);
+        // Function to update layer based on year slider value
+        function moveYearSlider(value) {
+            document.getElementById('YearMonth').innerHTML = `Year ${value}, ${monthNames[monthSlider.value - 1]}`;
+            updateLayer(value, monthSlider.value);
+            // Reset month slider to 1 when year slider changes
+            monthSlider.value = 1;
         }
 
-        // Function to update the layer with data for a specific year
-        function updateLayer(year) {
+        // Function to update layer based on month slider value
+        function moveMonthSlider(value) {
+            document.getElementById('YearMonth').innerHTML = `Year ${yearSlider.value}, ${monthNames[value - 1]}`;
+            updateLayer(yearSlider.value, value);
+        }
+
+        // Function to update the layer with data for a specific year and month
+        function updateLayer(year, month) {
             Outbreaks.clearLayers(); // Clear existing layer
             NonOutbreaks.clearLayers(); // Clear existing layer
 
             tornadoes.features.forEach(function(feature) {
-                if (feature.properties.yr == year) {
+                var featureYear = new Date(feature.properties.date_time).getFullYear();
+                var featureMonth = new Date(feature.properties.date_time).getMonth() + 1; // Month starts from 0
+                if (featureYear == year && featureMonth == month) {
                     var outbreakType = feature.properties.outbreak;
                     if (outbreakType === "1") {
                         Outbreaks.addData(feature);
@@ -148,17 +172,16 @@
             });
         }
 
-// Function to handle popup for each feature
-function onEachFeature(feature, layer) {
-    if (feature.properties) {
-        var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
-                           "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
-                           "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM + "<br>" +
-                           "<b>Date:</b> " + feature.properties.date;
-        layer.bindPopup(popupContent);
-    }
-}
-
+        // Function to handle popup for each feature
+        function onEachFeature(feature, layer) {
+            if (feature.properties) {
+                var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
+                                   "<b>Fatalities:</b> " + feature.properties.fat + "<br>" +
+                                   "<b>Adjusted Fujita Miles:</b> " + feature.properties.AFM + "<br>" +
+                                   "<b>Date:</b> " + feature.properties.date;
+                layer.bindPopup(popupContent);
+            }
+        }
 
         // Base maps and overlay maps
         var baseMaps = {
