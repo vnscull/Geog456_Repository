@@ -10,18 +10,18 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #a8e6cf, #ffffff); /* Gradient from light green to white */
+            background: linear-gradient(to bottom, #a8e6cf, #ffffff); 
         }
         #map {
             height: 500px;
             margin-bottom: 20px;
         }
-        #DateTime {
+        #YearMonth {
             font-size: 18px;
             margin-bottom: 10px;
             text-align: center;
         }
-        .slider {
+        #yearSlider, #monthSlider {
             width: 80%;
             margin: 0 auto;
             display: block;
@@ -31,7 +31,7 @@
             border-radius: 10px;
             margin-bottom: 10px;
         }
-        .slider::-webkit-slider-thumb {
+        #yearSlider::-webkit-slider-thumb, #monthSlider::-webkit-slider-thumb {
             width: 20px;
             height: 20px;
             background-color: #fff;
@@ -48,28 +48,47 @@
             margin-top: 10px;
             margin-bottom: 10px;
         }
-        #sliderControl {
+        #toggleMonth {
+            margin: 0 auto;
+            display: block;
             text-align: center;
-            margin-top: 10px;
+        }
+        .legend {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+        .legend i {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        .blue {
+            background-color: blue;
+        }
+        .pink {
+            background-color: pink;
         }
     </style>
 </head>
 <body>
     <h1>Tornado Outbreaks East of the Rockies</h1>
-    <h3 id="DateTime">Date and Time</h3>
-    <div id="sliderControl">
-        <label><input type="checkbox" id="yearToggle" checked> Year</label>
-        <label><input type="checkbox" id="monthToggle" checked> Month</label>
-        <label><input type="checkbox" id="weekToggle" checked> Week</label>
-        <label><input type="checkbox" id="dayToggle" checked> Day</label>
-        <label><input type="checkbox" id="hourToggle" checked> Hour</label>
-    </div>
-    <input type="range" name="Year" id="yearSlider" class="slider" min="1973" max="2023" value="1973" oninput="moveYearSlider(this.value)">
-    <input type="range" name="Month" id="monthSlider" class="slider" min="1" max="12" value="1" oninput="moveMonthSlider(this.value)">
-    <input type="range" name="Week" id="weekSlider" class="slider" min="1" max="53" value="1" oninput="moveWeekSlider(this.value)">
-    <input type="range" name="Day" id="daySlider" class="slider" min="1" max="31" value="1" oninput="moveDaySlider(this.value)">
-    <input type="range" name="Hour" id="hourSlider" class="slider" min="0" max="23" value="0" oninput="moveHourSlider(this.value)">
+    <h3 id="YearMonth">Year and Month</h3>
+    <input type="range" name="Year" id="yearSlider" min="1973" max="2023" value="1973" oninput="moveYearSlider(this.value)">
+    <input type="range" name="Month" id="monthSlider" min="1" max="12" value="1" oninput="moveMonthSlider(this.value)" style="display: block;">
+    <button id="toggleMonth" onclick="toggleMonth()">Toggle Month Slider</button>
     <div id="map"></div>
+    <div class="legend">
+        <div><i class="blue"></i> Outbreaks</div>
+        <div><i class="pink"></i> Non-Outbreaks</div>
+    </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="./data/tornadoes.js"></script>
     <script>
@@ -84,12 +103,15 @@
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
 
-        // Function to get color based on outbreak type
+        // Array of month names
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+
+
         function getColor(outbreakType) {
             return outbreakType === "1" ? 'blue' : 'pink';
         }
 
-        // Creating separate GeoJSON layers for blue and pink outbreaks
         var Outbreaks = L.geoJSON(null, {
             pointToLayer: function (feature, latlng) {
                 var outbreakType = feature.properties.outbreak;
@@ -124,78 +146,87 @@
             onEachFeature: onEachFeature
         });
 
-        // Adding blue and pink outbreaks to map
         Outbreaks.addTo(map);
         NonOutbreaks.addTo(map);
 
-        // Setting up sliders
+
         var yearSlider = document.getElementById('yearSlider');
         var monthSlider = document.getElementById('monthSlider');
-        var weekSlider = document.getElementById('weekSlider');
-        var daySlider = document.getElementById('daySlider');
-        var hourSlider = document.getElementById('hourSlider');
+        var uniqueYears = [];
+        var uniqueMonths = [];
 
-        // Checkbox toggles
-        var yearToggle = document.getElementById('yearToggle');
-        var monthToggle = document.getElementById('monthToggle');
-        var weekToggle = document.getElementById('weekToggle');
-        var dayToggle = document.getElementById('dayToggle');
-        var hourToggle = document.getElementById('hourToggle');
+        tornadoes.features.forEach(function(feature) {
+            var year = new Date(feature.properties.date_time).getFullYear();
+            var month = new Date(feature.properties.date_time).getMonth() + 1; // Month starts from 0
+            if (!uniqueYears.includes(year)) {
+                uniqueYears.push(year);
+            }
+            if (!uniqueMonths.includes(month)) {
+                uniqueMonths.push(month);
+            }
+        });
+        yearSlider.min = Math.min(...uniqueYears);
+        yearSlider.max = Math.max(...uniqueYears);
+        monthSlider.min = Math.min(...uniqueMonths);
+        monthSlider.max = Math.max(...uniqueMonths);
 
-        // Event listeners for toggle buttons
-        yearToggle.addEventListener('change', toggleSlider);
-        monthToggle.addEventListener('change', toggleSlider);
-        weekToggle.addEventListener('change', toggleSlider);
-        dayToggle.addEventListener('change', toggleSlider);
-        hourToggle.addEventListener('change', toggleSlider);
-
-        // Function to toggle slider visibility based on checkbox state
-        function toggleSlider() {
-            yearSlider.style.display = yearToggle.checked ? 'block' : 'none';
-            monthSlider.style.display = monthToggle.checked ? 'block' : 'none';
-            weekSlider.style.display = weekToggle.checked ? 'block' : 'none';
-            daySlider.style.display = dayToggle.checked ? 'block' : 'none';
-            hourSlider.style.display = hourToggle.checked ? 'block' : 'none';
-            updateLayer();
+        function moveYearSlider(value) {
+            if (document.getElementById('monthSlider').style.display === 'none') {
+                document.getElementById('YearMonth').innerHTML = `Year ${value}`;
+            } else {
+                document.getElementById('YearMonth').innerHTML = `Year ${value}, ${monthNames[monthSlider.value - 1]}`;
+            }
+            updateLayer(value, monthSlider.value);
+            monthSlider.value = 1;
         }
 
-// Function to update layer based on slider values
-function updateLayer() {
-    var selectedYear = yearToggle.checked ? yearSlider.value : '';
-    var selectedMonth = monthToggle.checked ? monthSlider.value : '';
-    var selectedWeek = weekToggle.checked ? weekSlider.value : '';
-    var selectedDay = dayToggle.checked ? daySlider.value : '';
-    var selectedHour = hourToggle.checked ? hourSlider.value : '';
-    
-    var filteredData = tornadoes.features.filter(function(feature) {
-        var featureYear = new Date(feature.properties.date_time).getUTCFullYear();
-        var featureMonth = new Date(feature.properties.date_time).getUTCMonth() + 1; // Months are zero-based
-        var featureWeek = getWeekNumber(new Date(feature.properties.date_time));
-        var featureDay = new Date(feature.properties.date_time).getUTCDate();
-        var featureHour = new Date(feature.properties.date_time).getUTCHours();
-        
-        return (!selectedYear || featureYear == selectedYear) &&
-               (!selectedMonth || featureMonth == selectedMonth) &&
-               (!selectedWeek || featureWeek == selectedWeek) &&
-               (!selectedDay || featureDay == selectedDay) &&
-               (!selectedHour || featureHour == selectedHour);
-    });
-
-    Outbreaks.clearLayers(); // Clear existing layer
-    NonOutbreaks.clearLayers(); // Clear existing layer
-
-    filteredData.forEach(function(feature) {
-        var outbreakType = feature.properties.outbreak;
-        if (outbreakType === "1") {
-            Outbreaks.addData(feature);
-        } else {
-            NonOutbreaks.addData(feature);
+        function moveMonthSlider(value) {
+            document.getElementById('YearMonth').innerHTML = `Year ${yearSlider.value}, ${monthNames[value - 1]}`;
+            updateLayer(yearSlider.value, value);
         }
-    });
-}
 
+        function updateLayer(year, month) {
+            Outbreaks.clearLayers(); 
+            NonOutbreaks.clearLayers(); 
 
-        // Function to handle popup for each feature
+            tornadoes.features.forEach(function(feature) {
+                var featureYear = new Date(feature.properties.date_time).getFullYear();
+                var featureMonth = new Date(feature.properties.date_time).getMonth() + 1; // Month starts from 0
+                if (document.getElementById('monthSlider').style.display === 'none') {
+                    if (featureYear == year) {
+                        var outbreakType = feature.properties.outbreak;
+                        if (outbreakType === "1") {
+                            Outbreaks.addData(feature);
+                        } else {
+                            NonOutbreaks.addData(feature);
+                        }
+                    }
+                } else {
+                    if (featureYear == year && featureMonth == month) {
+                        var outbreakType = feature.properties.outbreak;
+                        if (outbreakType === "1") {
+                            Outbreaks.addData(feature);
+                        } else {
+                            NonOutbreaks.addData(feature);
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleMonth() {
+            var monthSlider = document.getElementById('monthSlider');
+            var toggleButton = document.getElementById('toggleMonth');
+            if (monthSlider.style.display === 'block') {
+                monthSlider.style.display = 'none';
+                toggleButton.innerHTML = 'Show Month Slider';
+                moveYearSlider(yearSlider.value);
+            } else {
+                monthSlider.style.display = 'block';
+                toggleButton.innerHTML = 'Hide Month Slider';
+            }
+        }
+
         function onEachFeature(feature, layer) {
             if (feature.properties) {
                 var popupContent = "<b>Time:</b> " + feature.properties.time + "<br>" +
@@ -204,15 +235,6 @@ function updateLayer() {
                                    "<b>Date:</b> " + feature.properties.date;
                 layer.bindPopup(popupContent);
             }
-        }
-
-        // Function to get the week number for a given date
-        function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return weekNo;
         }
 
         // Base maps and overlay maps
@@ -231,4 +253,6 @@ function updateLayer() {
     </script>
 </body>
 </html>
+
+
 

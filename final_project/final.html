@@ -10,7 +10,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(to bottom, #a8e6cf, #ffffff); /* Gradient from light green to white */
+            background: linear-gradient(to bottom, #a8e6cf, #ffffff); 
         }
         #map {
             height: 500px;
@@ -53,6 +53,29 @@
             display: block;
             text-align: center;
         }
+        .legend {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
+            padding: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+        .legend i {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+        .blue {
+            background-color: blue;
+        }
+        .pink {
+            background-color: pink;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +85,11 @@
     <input type="range" name="Month" id="monthSlider" min="1" max="12" value="1" oninput="moveMonthSlider(this.value)" style="display: block;">
     <button id="toggleMonth" onclick="toggleMonth()">Toggle Month Slider</button>
     <div id="map"></div>
+    <img src="./data/tornado.png" alt="Tornado" width="400px">
+    <div class="legend">
+        <div><i class="blue"></i> Outbreaks</div>
+        <div><i class="pink"></i> Non-Outbreaks</div>
+    </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="./data/tornadoes.js"></script>
     <script>
@@ -166,7 +194,6 @@
                 var featureYear = new Date(feature.properties.date_time).getFullYear();
                 var featureMonth = new Date(feature.properties.date_time).getMonth() + 1; // Month starts from 0
                 if (document.getElementById('monthSlider').style.display === 'none') {
-                    // Display data for the selected year only
                     if (featureYear == year) {
                         var outbreakType = feature.properties.outbreak;
                         if (outbreakType === "1") {
@@ -176,7 +203,6 @@
                         }
                     }
                 } else {
-                    // Display data for the selected year and month
                     if (featureYear == year && featureMonth == month) {
                         var outbreakType = feature.properties.outbreak;
                         if (outbreakType === "1") {
@@ -195,7 +221,6 @@
             if (monthSlider.style.display === 'block') {
                 monthSlider.style.display = 'none';
                 toggleButton.innerHTML = 'Show Month Slider';
-                // Update layer when hiding month slider
                 moveYearSlider(yearSlider.value);
             } else {
                 monthSlider.style.display = 'block';
@@ -226,6 +251,9 @@
 
         // Adding layer control
         L.control.layers(baseMaps, overlayMaps).addTo(map);
+    </script>
+    </body><script>
+        
     </script>
 </body>
 </html>
