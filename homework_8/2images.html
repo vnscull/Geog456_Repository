@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    img {
+        position: absolute;
+    }
+    #yearLabel {
+        position: fixed;
+        top: 60px; /* Adjusted to move down by 50 pixels */
+        left: 10px;
+        font-size: 18px;
+        color: black;
+        z-index: 999;
+    }
+</style>
+<body>
+    <input type="range" min="0" max="1" value="0" step=".01" orient="horizontal" oninput="myFunction(this.value)" />
+    <img id='2011' src="./data/hooker_2011.png" alt=" " width="400px">
+    <img id='2009' src="./data/hooker_2009.png" alt="" width="400px">
+    <img id='2021' src="./data/hooker_2021.png" alt="" width="400px">
+    <div id="yearLabel">2009</div>
+
+<script>
+    var hooker_2021 = document.getElementById('2021');
+    var hooker_2011 = document.getElementById('2011');
+    var hooker_2009 = document.getElementById('2009');
+    var yearLabel = document.getElementById('yearLabel');
+
+    function myFunction(value) {
+        hooker_2021.style.opacity = value;
+        var year = 2009 + (value * 12); // Assuming the range input spans 12 years
+        yearLabel.textContent = Math.round(year);
+    }
+</script>
+</body>
+</html>
+
+
+
