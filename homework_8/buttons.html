@@ -5,7 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buttons</title>
 </head>
+<style>
+    img{
+        position:absolute;
+        height: 400px;
+    }
+    button{
+        position: absolute;
+        top: 410px;
+    }
+</style>
 <body>
-    
+    <img id='2021' src="data/hooker_2021.png" alt="2021">
+    <img id='2009' src="data/hooker_2009.png" alt="2009">
+    <button onclick="myFunction()">click</button>
 </body>
+<script>
+    var hooker_2021 = document.getElementById('2021');
+    var hooker_2009 = document.getElementById('2009');
+    var hooker_2009IsVisible = true;
+    function myFunction(){
+        if (hooker_2009IsVisible){hooker_2009.style.visibility = 'hidden'
+        hooker_2009IsVisible  = false;}
+        else {
+            hooker_2009IsVisible = 'visible'
+            hooker_2009IsVisible = true;
+        }
+        
+    }
+</script>
 </html>
