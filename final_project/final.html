@@ -134,10 +134,8 @@
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
 
-        // Month names array
         var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-        // Initialize heat map
         var heatMap = L.heatLayer([], {
             radius: 40,
             blur: 6,
@@ -150,11 +148,7 @@
                 0.80: 'red'
             }
         }).addTo(map);
-
-        // Initialize marker cluster group for outbreaks
         var outbreakClusterGroup = L.markerClusterGroup();
-
-        // Initialize Non-Outbreaks layer
         var NonOutbreaks = L.geoJSON(null, {
             pointToLayer: function (feature, latlng) {
                 if (feature.properties.outbreak !== "1") {
@@ -170,12 +164,8 @@
             },
             onEachFeature: onEachFeature
         });
-
-        // Add the outbreak cluster group and Non-Outbreaks layer to the map
         map.addLayer(outbreakClusterGroup);
         NonOutbreaks.addTo(map);
-
-        // Get unique years and months from the data for the sliders
         var uniqueYears = [];
         var uniqueMonths = [];
         tornadoes.features.forEach(function (feature) {
@@ -188,14 +178,11 @@
                 uniqueMonths.push(month);
             }
         });
-
-        // Set slider range based on the data
         yearSlider.min = Math.min(...uniqueYears);
         yearSlider.max = Math.max(...uniqueYears);
         monthSlider.min = Math.min(...uniqueMonths);
         monthSlider.max = Math.max(...uniqueMonths);
 
-        // Update YearMonth display and layers
         function moveYearSlider(value) {
             if (document.getElementById('monthSlider').style.display === 'none') {
                 document.getElementById('YearMonth').innerHTML = `Year ${value}`;
@@ -210,23 +197,16 @@
             document.getElementById('YearMonth').innerHTML = `Year ${yearSlider.value}, ${monthNames[value - 1]}`;
             updateLayer(yearSlider.value, value);
         }
-
-        // Update the layers based on selected year and month
         function updateLayer(year, month) {
-            // Clear existing layers
             NonOutbreaks.clearLayers();
             outbreakClusterGroup.clearLayers();
             heatMap.setLatLngs([]);
             var heatMapData = [];
 
-            // Loop through tornado features
             tornadoes.features.forEach(function (feature) {
                 var featureYear = new Date(feature.properties.date_time).getFullYear();
                 var featureMonth = new Date(feature.properties.date_time).getMonth() + 1;
-
-                // Filter features based on the selected year and month
                 if (document.getElementById('monthSlider').style.display === 'none') {
-                    // If month slider is hidden, only filter by year
                     if (featureYear == year) {
                         addFeatureToLayers(feature);
                         if (feature.properties.outbreak === "1") {
@@ -236,19 +216,14 @@
                 } else {
                     if (featureYear == year && featureMonth == month) {
                         addFeatureToLayers(feature);
-                        // Add feature to heat map data if it's an outbreak
                         if (feature.properties.outbreak === "1") {
                             heatMapData.push([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
                         }
                     }
                 }
             });
-
-            // Update heat map data
             heatMap.setLatLngs(heatMapData);
         }
-
-        // Add features to layers
         function addFeatureToLayers(feature) {
             var outbreakType = feature.properties.outbreak;
             var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
@@ -286,8 +261,6 @@
                 NonOutbreaks.addLayer(marker);
             }
         }
-
-        // Toggle the visibility of the month slider
         function toggleMonth() {
             var monthSlider = document.getElementById('monthSlider');
             var toggleButton = document.getElementById('toggleMonth');
@@ -300,8 +273,6 @@
                 toggleButton.innerHTML = 'Hide Month Slider';
             }
         }
-
-        // Callback function for each feature in Non-Outbreaks layer
         function onEachFeature(feature, layer) {
             if (feature.properties) {
                 var popupContent = `
@@ -313,8 +284,6 @@
                 layer.bindPopup(popupContent);
             }
         }
-
-        // Add control layers for base and overlay maps
         var baseMaps = {
             "OpenStreetMap": OSM,
             "Esri": Esri_WorldImagery
