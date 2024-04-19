@@ -61,40 +61,46 @@
             text-align: center;
         }
 
-        /* Legends */
-        .legend {
+        /* Heat Map Legend */
+        #heatMapLegend {
+          position: absolute;
+         bottom: -50px;
+         right: 10px;
+         padding: 10px;
+         background-color: rgba(255, 255, 255, 0.7);
+        border-radius: 5px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        font-size: 12px;
+        text-align: left;
+}
+
+        #heatMapLegend i {
+         width: 20px;
+        height: 20px;
+         display: inline-block;
+         margin-right: 5px;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+        /* Outbreak Legend */
+        .outbreakLegend {
             position: absolute;
+            bottom: 20px;
+            left: 10px;
             padding: 10px;
-            border-radius: 5px;
             background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 5px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             font-size: 12px;
             text-align: left;
         }
 
-        #heatMapLegend {
-            bottom: -50px;
-            right: 100px;
-        }
-
-        .outbreakLegend {
-            bottom: 20px;
-            left: 10px;
-        }
-
-        .legend i {
+        .outbreakLegend i {
             width: 20px;
             height: 20px;
             display: inline-block;
             margin-right: 5px;
-            /* border-radius: 50%; */
-        }
-        .legend a {
-            width: 20px;
-            height: 20px;
-            display: inline-block;
-            margin-right: 5px;
-            /* border-radius: 100%; */
+            border-radius: 50%;
         }
 
         #bottomRightImage {
@@ -121,7 +127,7 @@
         <div><i style="background: orange;"></i> High Amount of Outbreak Tornadoes</div>
         <div><i style="background: red;"></i> Very High Amount of Outbreak Tornadoes</div>
     </div>
-    <div class="legend outbreakLegend">
+    <div class="outbreakLegend">
         <div><i style="background: red;"></i> Outbreak Tornadoes</div>
         <div><i style="background: grey;"></i> Non-Outbreak Tornadoes</div>
     </div>
@@ -154,8 +160,9 @@
                 0.80: 'red'
             }
         }).addTo(map);
+
         var outbreakClusterGroup = L.markerClusterGroup();
-        var NonOutbreaks = L.geoJSON(null, {
+        var nonOutbreaks = L.geoJSON(null, {
             pointToLayer: function (feature, latlng) {
                 if (feature.properties.outbreak !== "1") {
                     return L.circleMarker(latlng, {
@@ -171,7 +178,8 @@
             onEachFeature: onEachFeature
         });
         map.addLayer(outbreakClusterGroup);
-        NonOutbreaks.addTo(map);
+        nonOutbreaks.addTo(map);
+
         var uniqueYears = [];
         var uniqueMonths = [];
         tornadoes.features.forEach(function (feature) {
@@ -184,6 +192,7 @@
                 uniqueMonths.push(month);
             }
         });
+
         yearSlider.min = Math.min(...uniqueYears);
         yearSlider.max = Math.max(...uniqueYears);
         monthSlider.min = Math.min(...uniqueMonths);
@@ -203,8 +212,9 @@
             document.getElementById('YearMonth').innerHTML = `Year ${yearSlider.value}, ${monthNames[value - 1]}`;
             updateLayer(yearSlider.value, value);
         }
+
         function updateLayer(year, month) {
-            NonOutbreaks.clearLayers();
+            nonOutbreaks.clearLayers();
             outbreakClusterGroup.clearLayers();
             heatMap.setLatLngs([]);
             var heatMapData = [];
@@ -228,8 +238,10 @@
                     }
                 }
             });
+
             heatMap.setLatLngs(heatMapData);
         }
+
         function addFeatureToLayers(feature) {
             var outbreakType = feature.properties.outbreak;
             var latlng = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
@@ -264,9 +276,10 @@
                 });
 
                 marker.bindPopup(popupContent);
-                NonOutbreaks.addLayer(marker);
+                nonOutbreaks.addLayer(marker);
             }
         }
+
         function toggleMonth() {
             var monthSlider = document.getElementById('monthSlider');
             var toggleButton = document.getElementById('toggleMonth');
@@ -279,6 +292,7 @@
                 toggleButton.innerHTML = 'Hide Month Slider';
             }
         }
+
         function onEachFeature(feature, layer) {
             if (feature.properties) {
                 var popupContent = `
@@ -290,16 +304,18 @@
                 layer.bindPopup(popupContent);
             }
         }
+
         var baseMaps = {
             "OpenStreetMap": OSM,
             "Esri": Esri_WorldImagery
         };
 
         var overlayMaps = {
-            "Non-Outbreak": NonOutbreaks,
+            "Non-Outbreak": nonOutbreaks,
             "Outbreaks": outbreakClusterGroup,
             "Heat Map": heatMap
         };
+
         L.control.layers(baseMaps, overlayMaps).addTo(map);
     </script>
 </body>
