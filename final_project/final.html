@@ -104,7 +104,7 @@
 
         #bottomRightImage {
             position: relative;
-            bottom: 330px;
+            bottom: 420px;
             right: -200px;
             width: 400px;
             height: 400px;
@@ -114,7 +114,7 @@
          bottom: 1px;
          right: -620px; /* Adjust the right property as needed */
          width: 500px; /* Set the width of the text box */
-         height: 300px; /* Set the height of the text box */
+         height: 400px; /* Set the height of the text box */
          padding: 10px;
          background-color: rgba(255, 255, 255, 0.9); /* White background with some transparency */
          border: 1px solid #ccc; /* Light grey border */
@@ -149,9 +149,13 @@
         Outbreak tornadoes (tornadoes depicted as red circle points,) are represented in the form of a heat map/clusters, signifying
         the density of tornadic outbreak events in an area. Outbreaks were defined by Fuhrmann et. al. in a 2014 
         "Weather and Climate" article as a tornado which occurred within 6 hours of the one preceeding it, produced
-        by the same synoptic weather event. Non-Outbreak tornadoes (grey points) are tornadoes which touched down independent
-        of outbreak status.
-        <span style="font-size: 16px;"><strong>How to Use this Map:</strong></span> 
+        by the same synoptic weather event. Non-Outbreak tornadoes (grey points) are tornadoes which touched down independently of another.
+        <span style="font-size: 16px;"><strong>How to Use this Map:</strong></span> As described above, red points are touchdown coordinates of an outbreak
+        tornado, and grey is the touchdown point of a non-outbreak tornado. The slider above the map toggles the time frame: the button below
+        the "month" slider can be toggled in order to see all points for the entire specified year. By hovering over "hot spots" on the heat map, the User
+        can click on the highlighted polygon to zoom in on a cluster of outbreak points. The user can additionally click on any point to 
+        reveal a popup of all of the relevant information on that specific tornado. By hovering over the table in the top right corner of the map,
+        the visible points and heat map can be toggled on and off.
     </p>
 </div>
     <img id="bottomRightImage" src="./data/tornado.png" alt="tornado">
