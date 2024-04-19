@@ -82,7 +82,6 @@
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
-        /* Outbreak Legend */
         .outbreakLegend {
             position: absolute;
             bottom: 20px;
@@ -105,11 +104,25 @@
 
         #bottomRightImage {
             position: relative;
-            bottom: 20px;
+            bottom: 330px;
             right: -200px;
             width: 400px;
             height: 400px;
         }
+        .textBox {
+          position: relative;
+         bottom: 1px;
+         right: -620px; /* Adjust the right property as needed */
+         width: 500px; /* Set the width of the text box */
+         height: 300px; /* Set the height of the text box */
+         padding: 10px;
+         background-color: rgba(255, 255, 255, 0.9); /* White background with some transparency */
+         border: 1px solid #ccc; /* Light grey border */
+         border-radius: 5px; /* Rounded corners */
+         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for better visibility */
+         text-align: left; /* Align text to the left */
+        }
+
     </style>
 </head>
 
@@ -131,7 +144,16 @@
         <div><i style="background: red;"></i> Outbreak Tornadoes</div>
         <div><i style="background: grey;"></i> Non-Outbreak Tornadoes</div>
     </div>
-
+<div id="textBox" class="textBox">
+    <p><span style="font-size: 16px;"><strong>Background:</strong></span> This map describes tornadoes East of the Rockies from a dataset going back to 1973 a "outbreaks" or "non-outbreaks."
+        Outbreak tornadoes (tornadoes depicted as red circle points,) are represented in the form of a heat map/clusters, signifying
+        the density of tornadic outbreak events in an area. Outbreaks were defined by Fuhrmann et. al. in a 2014 
+        "Weather and Climate" article as a tornado which occurred within 6 hours of the one preceeding it, produced
+        by the same synoptic weather event. Non-Outbreak tornadoes (grey points) are tornadoes which touched down independent
+        of outbreak status.
+        <span style="font-size: 16px;"><strong>How to Use this Map:</strong></span> 
+    </p>
+</div>
     <img id="bottomRightImage" src="./data/tornado.png" alt="tornado">
     <script src="./data/tornadoes.js"></script>
     <script>
